@@ -1,5 +1,5 @@
 # BOT Einar
-A simple, yet useful, bot for CS:GO communities on Discord.
+A ~~powerful~~ simple bot for CS:GO communities on Discord.
 
 ## Features
 - Posts updates from chosen RSS feeds. By default:
