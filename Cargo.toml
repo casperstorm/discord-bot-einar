@@ -1,0 +1,17 @@
+[package]
+name = "discord-bot-einar"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = ["data"]
+
+[dependencies]
+data = { version = "0.1.0", path = "data" }
+serenity = { version = "0.11.5", default-features = false, features = [ "client", "gateway", "rustls_backend", "model" ] }
+tokio = { version = "1", features = ["full"] }
+thiserror = "1"
+config = "0.13.2"
+log = "0.4.17"
+pretty_env_logger = "0.4.0"
+itertools = "0.10.5"

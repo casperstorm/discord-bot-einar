@@ -1,0 +1,10 @@
+# get your bot token from here: https://discord.com/developers/
+token: --
+# channel id to post rss items to
+rss_channel: --
+# rss list
+rss_list:
+  - https://blog.counter-strike.net/index.php/feed/
+  - https://blog.counter-strike.net/index.php/category/updates/feed/
+# refresh interval in seconds. default: 600.
+rss_refresh_seconds: 10
