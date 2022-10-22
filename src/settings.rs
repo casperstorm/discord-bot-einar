@@ -3,6 +3,14 @@ use std::fmt::Display;
 use config::Config;
 use serenity::model::prelude::ChannelId;
 
+#[derive(Debug, Clone, Copy, thiserror::Error)]
+pub enum Error {
+    #[error("the config directory could not be found")]
+    DirectoryNotFound,
+    #[error("the config directory could not be created")]
+    DirectoryCreationFailed,
+}
+
 #[derive(Debug, Clone)]
 pub struct Token(String);
 
@@ -27,9 +35,19 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn load() -> Settings {
+    pub fn load() -> Result<Settings, Error> {
+        let mut config_path = dirs_next::config_dir().ok_or(Error::DirectoryNotFound)?;
+        config_path.push("discord-bot-einar");
+
+        if !config_path.exists() {
+            std::fs::create_dir(config_path.as_path())
+                .map_err(|_| Error::DirectoryCreationFailed)?;
+        }
+
+        config_path.push("Settings.yml");
+
         let config = Config::builder()
-            .add_source(config::File::with_name("./settings.yml"))
+            .add_source(config::File::from(config_path))
             .build()
             .expect("settings file not found");
 
@@ -56,12 +74,12 @@ impl Settings {
             .and_then(|s| s.parse::<u64>().ok())
             .unwrap_or(60 * 10);
 
-        Settings {
+        Ok(Settings {
             token,
             rss_channel,
             rss_list,
             rss_refresh_seconds,
-        }
+        })
     }
 
     pub fn token(&self) -> &Token {

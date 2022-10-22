@@ -98,25 +98,28 @@ impl EventHandler for Handler {
 async fn main() {
     setup_logger();
 
-    let settings = Settings::load();
-    let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
+    if let Ok(settings) = Settings::load() {
+        let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
 
-    let mut client = Client::builder(&settings.token().to_string(), intents)
-        .event_handler(Handler {
-            settings,
-            is_fetching_rss: AtomicBool::new(false),
-        })
-        .await
-        .expect("error creating client");
+        let mut client = Client::builder(&settings.token().to_string(), intents)
+            .event_handler(Handler {
+                settings,
+                is_fetching_rss: AtomicBool::new(false),
+            })
+            .await
+            .expect("error creating client");
 
-    {
-        // Build initial DateTimeCache used to keep track of latest RSS post.
-        let mut data = client.data.write().await;
-        data.insert::<DateTimeCache>(Arc::new(RwLock::new(HashMap::default())));
-    }
+        {
+            // Build initial DateTimeCache used to keep track of latest RSS post.
+            let mut data = client.data.write().await;
+            data.insert::<DateTimeCache>(Arc::new(RwLock::new(HashMap::default())));
+        }
 
-    if let Err(why) = client.start().await {
-        log::error!("client error: {:?}", why);
+        if let Err(why) = client.start().await {
+            log::error!("client error: {:?}", why);
+        }
+    } else {
+        log::error!("Settings.yml not found in config dir.");
     }
 }
 

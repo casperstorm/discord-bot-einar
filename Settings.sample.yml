@@ -1,3 +1,8 @@
+# Place this in config dir:
+# Lin: /home/alice/.config/discord-bot-einar/Settings.ym
+# Win: C:\Users\Alice\AppData\Roaming\discord-bot-einar/Settings.yml
+# Mac: /Users/Alice/Library/Application Support/discord-bot-einar/Settings.yml
+
 # get your bot token from here: https://discord.com/developers/
 token: --
 # channel id to post rss items to
