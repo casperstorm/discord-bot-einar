@@ -1,5 +1,11 @@
+use data::date_time::DateTime;
 use serenity::{model::prelude::ChannelId, prelude::Context};
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
+
+#[derive(Debug, Clone, Default)]
+pub struct Rss {
+    pub cached_date_time: HashMap<String, DateTime>,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Item(data::rss::Item);
