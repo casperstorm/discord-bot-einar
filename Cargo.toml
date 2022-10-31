@@ -3,12 +3,8 @@ name = "discord-bot-einar"
 version = "0.1.0"
 edition = "2021"
 
-[workspace]
-members = ["data"]
-
 [dependencies]
-data = { version = "0.1.0", path = "data" }
-serenity = { version = "0.11.5", default-features = false, features = [ "client", "gateway", "rustls_backend", "model" ] }
+serenity = { version = "0.11.5", features = [ "client", "gateway", "rustls_backend", "model" ] }
 tokio = { version = "1", features = ["full"] }
 thiserror = "1"
 config = "0.13.2"
@@ -18,3 +14,8 @@ itertools = "0.10.5"
 dirs-next = "2.0.0"
 serde = "1.0"
 serde_yaml = "0.9"
+rss = "2.0.1"
+reqwest = "0.11.12"
+chrono = "0.4.22"
+html-escape = "0.2.11"
+rand = "0.8.5"

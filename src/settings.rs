@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use serenity::model::prelude::ChannelId;
+
 use config::Config;
 use serde::{Deserialize, Serialize};
 
@@ -34,39 +36,24 @@ impl From<&str> for Token {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
-pub struct Channel(serenity::model::prelude::ChannelId);
-
-impl From<serenity::model::prelude::ChannelId> for Channel {
-    fn from(channel_id: serenity::model::prelude::ChannelId) -> Self {
-        Self(channel_id)
-    }
-}
-
-impl From<Channel> for serenity::model::prelude::ChannelId {
-    fn from(channel: Channel) -> Self {
-        channel.0
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
     token: Token,
-    rss_channel: Channel,
-    rss_list: Vec<String>,
-    pub rss_refresh_seconds: u64,
+    channel: ChannelId,
+    feed: Vec<String>,
+    refresh_rate: u64,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
             token: Token::default(),
-            rss_channel: Channel::default(),
-            rss_list: vec![
+            channel: ChannelId::default(),
+            feed: vec![
                 "https://blog.counter-strike.net/index.php/feed/".to_owned(),
                 "https://blog.counter-strike.net/index.php/category/updates/feed/".to_owned(),
             ],
-            rss_refresh_seconds: 600,
+            refresh_rate: 600,
         }
     }
 }
@@ -102,27 +89,26 @@ impl Settings {
         let token = config
             .get::<Token>("token")
             .map_err(|_| Error::DiscordTokenNotFound)?;
-        let rss_channel = config
-            .get::<serenity::model::prelude::ChannelId>("rss_channel")
-            .map_err(|_| Error::RssChannelNotFound)?
-            .into();
-        let rss_list = config
-            .get_array("rss_list")
+        let channel = config
+            .get::<ChannelId>("channel")
+            .map_err(|_| Error::RssChannelNotFound)?;
+        let feed = config
+            .get_array("feed")
             .unwrap_or_default()
             .iter()
             .map(|v| v.to_string())
             .collect();
-        let rss_refresh_seconds = config
-            .get_string("rss_refresh_seconds")
+        let refresh_rate = config
+            .get_string("refresh_rate")
             .ok()
             .and_then(|s| s.parse::<u64>().ok())
             .unwrap_or(60 * 10);
 
         Ok(Settings {
             token,
-            rss_channel,
-            rss_list,
-            rss_refresh_seconds,
+            channel,
+            feed,
+            refresh_rate,
         })
     }
 
@@ -130,15 +116,15 @@ impl Settings {
         &self.token
     }
 
-    pub fn rss_list(&self) -> &[String] {
-        &self.rss_list
+    pub fn feed(&self) -> &[String] {
+        &self.feed
     }
 
-    pub fn rss_channel(&self) -> Channel {
-        self.rss_channel
+    pub fn channel(&self) -> ChannelId {
+        self.channel
     }
 
-    pub fn rss_refresh_seconds(&self) -> u64 {
-        self.rss_refresh_seconds
+    pub fn refresh_seconds(&self) -> u64 {
+        self.refresh_rate
     }
 }

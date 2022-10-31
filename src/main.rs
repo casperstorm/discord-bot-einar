@@ -1,3 +1,4 @@
+mod date_time;
 mod rss;
 mod settings;
 
@@ -7,7 +8,7 @@ use std::time::Duration;
 
 use itertools::Itertools;
 use serenity::async_trait;
-use serenity::model::channel::Message;
+use serenity::framework::StandardFramework;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 
@@ -34,9 +35,9 @@ impl EventHandler for Handler {
 
         if let Some(settings) = ctx.data.read().await.get::<SettingsCache>() {
             let ctx = Arc::new(ctx.clone());
-            let rss_items = settings.rss_list().to_vec();
-            let rss_channel = settings.rss_channel();
-            let rss_refresh_seconds = settings.rss_refresh_seconds();
+            let rss_items = settings.feed().to_vec();
+            let rss_channel = settings.channel();
+            let rss_refresh_seconds = settings.refresh_seconds();
 
             tokio::spawn(async move {
                 loop {
@@ -49,7 +50,7 @@ impl EventHandler for Handler {
                         .clone();
 
                     for path in rss_items.iter() {
-                        let items = data::rss::feed(path).await.unwrap_or_default();
+                        let items = rss::feed(path).await.unwrap_or_default();
 
                         if let Some(item) = items.first() {
                             // Get cached `DateTime` for item.
@@ -68,7 +69,7 @@ impl EventHandler for Handler {
                                 .collect::<Vec<_>>();
 
                             for item in &items {
-                                item.post(rss_channel.into(), Arc::clone(&ctx)).await;
+                                item.post(rss_channel, Arc::clone(&ctx)).await;
                             }
 
                             // Update cache with latest date if we have any.
@@ -81,14 +82,6 @@ impl EventHandler for Handler {
                     tokio::time::sleep(Duration::from_secs(rss_refresh_seconds)).await;
                 }
             });
-        }
-    }
-
-    async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content.starts_with("!ping") {
-            if let Err(why) = msg.channel_id.say(&ctx.http, "pong!").await {
-                log::error!("error sending message: {:?}", why);
-            }
         }
     }
 }
@@ -105,10 +98,12 @@ async fn main() -> Result<(), Error> {
 
     let settings = settings::Settings::load()?;
     let token = settings.token();
+    let framework = StandardFramework::new();
 
     let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
     let mut client = Client::builder(token.to_string(), intents)
         .event_handler(Handler)
+        .framework(framework)
         .await
         .expect("error creating client");
 
