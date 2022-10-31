@@ -1,0 +1,6 @@
+token: token-from-discord.com/developers
+channel: channel-to-post-updates-to
+feed:
+  - https://blog.counter-strike.net/index.php/feed/
+  - https://blog.counter-strike.net/index.php/category/updates/feed/
+refresh_rate: 500

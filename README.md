@@ -1,13 +1,11 @@
 # BOT Einar
-A ~~powerful~~ simple bot for CS:GO communities on Discord.
+A ~~powerful~~ simple RSS bot for Discord.
 
 ## Features
-- Posts updates from chosen RSS feeds. By default:
-  - [CS:GO Updates](https://blog.counter-strike.net/index.php/category/updates/)
-  - [CS:GO News](https://blog.counter-strike.net/)
+- Posts updates from RSS feeds.
   
 ## Running
-1. Create a Bot, and copy the token: https://discord.com/developers/
-2. Modify `Settings.yml` as pleased, and copy it to config dir (`eg: ~/.config/discord-bot-user/Settings.yml`)
+1. Create a Bot, and copy token: https://discord.com/developers/
+2. Copy `Settings.yml` to config dir (`eg: ~/.config/discord-bot-einar/Settings.yml`)
 3. `cargo run`
 
